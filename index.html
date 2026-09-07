@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qualifikationsmatrix – Lager Bischofsheim</title>
+<style>
+  :root {
+    --ink: #1c2733;
+    --ink-soft: #5a6b7b;
+    --line: #dfe4ea;
+    --line-strong: #c4ccd6;
+    --panel: #ffffff;
+    --bg: #eef1f5;
+    --accent: #1f5f8b;
+    --accent-soft: #eaf2f8;
+
+    --lvl0-bg: #f4f6f8; --lvl0-fg: #90a0af; --lvl0-bd: #e2e7ec;
+    --lvl1-bg: #fdeeee; --lvl1-fg: #b23b3b; --lvl1-bd: #f3cccc;
+    --lvl2-bg: #fef6e7; --lvl2-fg: #a9781a; --lvl2-bd: #f4e0b0;
+    --lvl3-bg: #edf7ee; --lvl3-fg: #2f7d3a; --lvl3-bd: #c9e6cd;
+    --lvl4-bg: #e9f1f8; --lvl4-fg: #1f5f8b; --lvl4-bd: #c3dcef;
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap { max-width: 1520px; margin: 0 auto; padding: 32px 28px 64px; }
+
+  header.masthead {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    gap: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--ink);
+    margin-bottom: 26px; flex-wrap: wrap;
+  }
+  .title-block h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .title-block p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+  .meta { text-align: right; color: var(--ink-soft); font-size: 12.5px; line-height: 1.6; }
+  .meta strong { color: var(--ink); font-weight: 600; }
+
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; margin-bottom: 18px; flex-wrap: wrap;
+  }
+  .legend { display: flex; gap: 8px; flex-wrap: wrap; }
+  .legend .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 5px 11px 5px 8px; border-radius: 999px;
+    border: 1px solid var(--line); background: var(--panel);
+    font-size: 12px; color: var(--ink-soft); white-space: nowrap;
+  }
+  .legend .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: 0 0 auto; }
+  .d0 { background: var(--lvl0-bg); border: 1px solid var(--lvl0-bd); }
+  .d1 { background: var(--lvl1-bg); border: 1px solid var(--lvl1-bd); }
+  .d2 { background: var(--lvl2-bg); border: 1px solid var(--lvl2-bd); }
+  .d3 { background: var(--lvl3-bg); border: 1px solid var(--lvl3-bd); }
+  .d4 { background: var(--lvl4-bg); border: 1px solid var(--lvl4-bd); }
+
+  .actions { display: flex; gap: 8px; }
+  button {
+    font: inherit; font-size: 13px; font-weight: 500;
+    padding: 8px 14px; border-radius: 7px; border: 1px solid var(--line-strong);
+    background: var(--panel); color: var(--ink); cursor: pointer;
+    transition: background .12s, border-color .12s;
+  }
+  button:hover { background: #f6f8fa; border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { background: #184a6d; }
+
+  .board {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+    overflow: hidden; box-shadow: 0 1px 2px rgba(28,39,51,.05), 0 8px 24px rgba(28,39,51,.04);
+  }
+  .scroll { overflow-x: auto; }
+
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1040px; }
+
+  thead th {
+    position: sticky; top: 0; z-index: 3; background: #f7f9fb; color: var(--ink);
+    font-weight: 600; font-size: 12.5px; text-align: center; padding: 13px 10px;
+    border-bottom: 1px solid var(--line-strong); white-space: nowrap;
+  }
+  thead th.name-col { text-align: left; z-index: 5; left: 0; padding-left: 18px; min-width: 200px; }
+  thead th.pos-col { text-align: left; z-index: 5; left: 200px; min-width: 172px; border-right: 1px solid var(--line-strong); }
+
+  tbody td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: center; }
+  tbody td.name-col {
+    position: sticky; left: 0; z-index: 2; background: var(--panel); text-align: left;
+    padding: 10px 12px 10px 18px; font-weight: 500; white-space: nowrap;
+  }
+  tbody td.pos-col {
+    position: sticky; left: 200px; z-index: 2; background: var(--panel); text-align: left;
+    padding: 8px 10px; border-right: 1px solid var(--line-strong); white-space: nowrap;
+  }
+  tbody tr:hover td { background: #fafbfc; }
+  tbody tr:hover td.name-col, tbody tr:hover td.pos-col { background: #f4f7fa; }
+
+  .idx { color: var(--ink-soft); font-weight: 400; font-variant-numeric: tabular-nums; margin-right: 9px; }
+
+  select {
+    font: inherit; font-size: 12.5px; font-weight: 500; width: 100%;
+    padding: 6px 6px; border-radius: 6px; border: 1px solid transparent;
+    text-align: center; text-align-last: center; cursor: pointer;
+    appearance: none; -webkit-appearance: none; transition: box-shadow .12s;
+  }
+  select:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-soft), 0 0 0 3px var(--accent); }
+
+  select.qual { min-width: 74px; max-width: 108px; background: var(--lvl0-bg); color: var(--lvl0-fg); }
+  select.qual.v0 { background: var(--lvl0-bg); color: var(--lvl0-fg); border-color: var(--lvl0-bd); }
+  select.qual.v1 { background: var(--lvl1-bg); color: var(--lvl1-fg); border-color: var(--lvl1-bd); }
+  select.qual.v2 { background: var(--lvl2-bg); color: var(--lvl2-fg); border-color: var(--lvl2-bd); }
+  select.qual.v3 { background: var(--lvl3-bg); color: var(--lvl3-fg); border-color: var(--lvl3-bd); }
+  select.qual.v4 { background: var(--lvl4-bg); color: var(--lvl4-fg); border-color: var(--lvl4-bd); }
+
+  select.pos {
+    text-align: left; text-align-last: left; min-width: 168px;
+    background: #f4f6f8; color: var(--ink); border-color: var(--line);
+    background-image: linear-gradient(45deg, transparent 50%, var(--ink-soft) 50%), linear-gradient(135deg, var(--ink-soft) 50%, transparent 50%);
+    background-position: calc(100% - 15px) 12px, calc(100% - 10px) 12px;
+    background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
+    padding-right: 26px;
+  }
+  select.pos.lead { background-color: #eaf2f8; color: var(--accent); border-color: #c3dcef; font-weight: 600; }
+
+  tfoot td {
+    padding: 10px 8px; text-align: center; font-size: 12px; font-weight: 600;
+    color: var(--ink-soft); background: #f7f9fb; border-top: 1px solid var(--line-strong);
+    font-variant-numeric: tabular-nums;
+  }
+  tfoot td.name-col {
+    position: sticky; left: 0; text-align: left; padding-left: 18px;
+    background: #f7f9fb; color: var(--ink);
+  }
+  tfoot td.pos-col {
+    position: sticky; left: 200px; background: #f7f9fb;
+    border-right: 1px solid var(--line-strong);
+  }
+
+  footer.note { margin-top: 16px; color: var(--ink-soft); font-size: 12px; }
+
+  @media print {
+    body { background: #fff; }
+    .wrap { max-width: none; padding: 0; }
+    .toolbar .actions { display: none; }
+    .board { box-shadow: none; border: 1px solid #999; }
+    select { appearance: none; -webkit-appearance: none; border: 1px solid #ccc; background-image: none; }
+    thead th { position: static; }
+    tbody td.name-col, tbody td.pos-col, tfoot td.name-col, tfoot td.pos-col { position: static; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="title-block">
+      <h1>Qualifikationsmatrix</h1>
+      <p>Lagerstandort Bischofsheim · Qualifikationsstand nach Bereich</p>
+    </div>
+    <div class="meta">
+      <div><strong>Stand:</strong> <span id="stamp"></span></div>
+      <div><strong>Mitarbeiter:</strong> 24 · <strong>Bereiche:</strong> 8</div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="legend">
+      <span class="chip"><span class="dot d0"></span>Nicht eingesetzt</span>
+      <span class="chip"><span class="dot d1"></span>In Einarbeitung</span>
+      <span class="chip"><span class="dot d2"></span>Unter Anleitung</span>
+      <span class="chip"><span class="dot d3"></span>Selbstständig</span>
+      <span class="chip"><span class="dot d4"></span>Kann anleiten</span>
+    </div>
+    <div class="actions">
+      <button onclick="resetAll()">Zurücksetzen</button>
+      <button onclick="window.print()">Drucken / PDF</button>
+      <button class="primary" onclick="saveNow(event)">Speichern</button>
+    </div>
+  </div>
+
+  <div class="board">
+    <div class="scroll">
+      <table id="matrix">
+        <thead>
+          <tr id="head-row"></tr>
+        </thead>
+        <tbody id="body"></tbody>
+        <tfoot>
+          <tr id="foot-row"></tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <footer class="note">
+    Position und Qualifikationsstand je Zelle per Dropdown wählbar. Nach Auswahl einer Position wird die Tabelle automatisch neu sortiert. Eingaben werden im Browser gespeichert. Für die Präsentation „Drucken / PDF" nutzen.
+  </footer>
+
+</div>
+
+<script>
+  const AREAS = ["Picken","Packen","Retoure","Wareneingang","Frachten","Versand","GotBag-Druck","Stapler"];
+
+  const LEVELS = [
+    { v:0, label:"–",           full:"Nicht eingesetzt" },
+    { v:1, label:"Einarbeit.",  full:"In Einarbeitung" },
+    { v:2, label:"Anleitung",   full:"Unter Anleitung" },
+    { v:3, label:"Selbstst.",   full:"Selbstständig" },
+    { v:4, label:"Anleiten",    full:"Kann anleiten" },
+  ];
+
+  // Positionen mit Sortierrang (kleiner = weiter oben). Leitungsrollen zuerst.
+  const POSITIONS = [
+    { name:"Lagerleiter",             rank:0, lead:true },
+    { name:"Teamleiter Inhouse",      rank:1, lead:true },
+    { name:"Teamleiter Wareneingang", rank:2, lead:true },
+    { name:"Teamleiter Frachten",     rank:3, lead:true },
+    { name:"Teamleiter Versand",      rank:4, lead:true },
+    { name:"Vollzeit",                rank:5, lead:false },
+    { name:"Teilzeit",                rank:6, lead:false },
+  ];
+  const POS_RANK = {};
+  POSITIONS.forEach(p => POS_RANK[p.name] = p.rank);
+  const POS_LEAD = {};
+  POSITIONS.forEach(p => POS_LEAD[p.name] = p.lead);
+
+  const PEOPLE = [
+    "Rout, Evgeniya","Bahn, Marc","Da Silva Antonio, Jose","Degirmenci, Abdullah",
+    "Khan, Emal","Munteanu, Tatiana","Ngoc Thanh Tuyen, Pham","Philippi, Rene",
+    "Zerrou, Ayoub","Dortmann, Irina","Malah, Khalid","Müller, Heike",
+    "Tewelde, Amanuel","Valter, Julia","Schuller, Milica","Kunicke, Asta",
+    "Barschtipan, Dustin","Jung, Jaqueline","Gacioppo, Fabio","Kimmer, Timo",
+    "Huduq, Osumani","Franjo, Denis","Semm, Yvonne","Scholz-Zhang, Zhenfang"
+  ];
+
+  const KEY = "qualimatrix-bischofsheim-v2";
+  const store = JSON.parse(localStorage.getItem(KEY) || "{}");
+  // store: { quals: {name||area: level}, positions: {name: positionName} }
+  store.quals = store.quals || {};
+  store.positions = store.positions || {};
+
+  const headRow = document.getElementById("head-row");
+  headRow.innerHTML =
+    '<th class="name-col">Mitarbeiter</th>' +
+    '<th class="pos-col">Position</th>' +
+    AREAS.map(a => `<th>${a}</th>`).join("");
+
+  const body = document.getElementById("body");
+
+  function sortedPeople() {
+    return PEOPLE.slice().sort((a, b) => {
+      const ra = store.positions[a] != null ? POS_RANK[store.positions[a]] : 99;
+      const rb = store.positions[b] != null ? POS_RANK[store.positions[b]] : 99;
+      if (ra !== rb) return ra - rb;
+      return a.localeCompare(b, "de");
+    });
+  }
+
+  function render() {
+    let html = "";
+    let idx = 0;
+    sortedPeople().forEach(name => {
+      idx++;
+      const curPos = store.positions[name] ?? "";
+      const posOpts = '<option value="">– Position –</option>' +
+        POSITIONS.map(p => `<option value="${p.name}" ${p.name===curPos?"selected":""}>${p.name}</option>`).join("");
+      const leadCls = POS_LEAD[curPos] ? " lead" : "";
+      const posCell =
+        `<td class="pos-col"><select class="pos${leadCls}" data-person="${name}" onchange="onPosChange(this)">${posOpts}</select></td>`;
+
+      const cells = AREAS.map(area => {
+        const id = `${name}||${area}`;
+        const val = store.quals[id] ?? 0;
+        const opts = LEVELS.map(l =>
+          `<option value="${l.v}" ${l.v==val?"selected":""}>${l.label}</option>`).join("");
+        return `<td><select class="qual v${val}" data-id="${id}" onchange="onQualChange(this)">${opts}</select></td>`;
+      }).join("");
+
+      html += `<tr><td class="name-col"><span class="idx">${idx}</span>${name}</td>${posCell}${cells}</tr>`;
+    });
+    body.innerHTML = html;
+    recount();
+  }
+
+  const footRow = document.getElementById("foot-row");
+  footRow.innerHTML =
+    '<td class="name-col">Qualifiziert je Bereich</td>' +
+    '<td class="pos-col"></td>' +
+    AREAS.map((_,i) => `<td data-col="${i}">0</td>`).join("");
+
+  function onQualChange(sel) {
+    const val = sel.value;
+    sel.className = "qual v" + val;
+    store.quals[sel.dataset.id] = Number(val);
+    persist();
+    recount();
+  }
+
+  function onPosChange(sel) {
+    const person = sel.dataset.person;
+    if (sel.value === "") delete store.positions[person];
+    else store.positions[person] = sel.value;
+    persist();
+    render(); // neu sortieren
+  }
+
+  function recount() {
+    AREAS.forEach((area, i) => {
+      let n = 0;
+      document.querySelectorAll(`select.qual[data-id$="||${area}"]`).forEach(s => {
+        if (Number(s.value) >= 3) n++;
+      });
+      const cell = footRow.querySelector(`td[data-col="${i}"]`);
+      if (cell) cell.textContent = n;
+    });
+  }
+
+  function persist() { localStorage.setItem(KEY, JSON.stringify(store)); }
+
+  function saveNow(e) {
+    persist();
+    const btn = e.target; const t = btn.textContent;
+    btn.textContent = "Gespeichert ✓";
+    setTimeout(() => btn.textContent = t, 1400);
+  }
+
+  function resetAll() {
+    if (!confirm("Alle Einträge zurücksetzen?")) return;
+    localStorage.removeItem(KEY);
+    location.reload();
+  }
+
+  document.getElementById("stamp").textContent =
+    new Date().toLocaleDateString("de-DE", { day:"2-digit", month:"long", year:"numeric" });
+
+  render();
+</script>
+</body>
+</html>
