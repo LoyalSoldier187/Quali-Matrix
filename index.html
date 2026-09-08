@@ -147,12 +147,25 @@
 
   footer.note { margin-top: 16px; color: var(--ink-soft); font-size: 12px; }
 
+  .salary-col { min-width: 118px; }
+  input.salary {
+    font: inherit; font-size: 12.5px; font-weight: 600;
+    width: 100%; min-width: 96px; padding: 7px 9px;
+    border-radius: 6px; border: 1px solid var(--line);
+    background: #fbfcfd; color: var(--ink);
+    text-align: right; font-variant-numeric: tabular-nums;
+    transition: box-shadow .12s, border-color .12s;
+  }
+  input.salary::placeholder { color: var(--ink-soft); font-weight: 400; }
+  input.salary:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
   @media print {
     body { background: #fff; }
     .wrap { max-width: none; padding: 0; }
     .toolbar .actions { display: none; }
     .board { box-shadow: none; border: 1px solid #999; }
     select { appearance: none; -webkit-appearance: none; border: 1px solid #ccc; background-image: none; }
+    input.salary { border: 1px solid #ccc; background: #fff; }
     thead th { position: static; }
     tbody td.name-col, tbody td.pos-col, tfoot td.name-col, tfoot td.pos-col { position: static; }
   }
@@ -249,12 +262,14 @@
   // store: { quals: {name||area: level}, positions: {name: positionName} }
   store.quals = store.quals || {};
   store.positions = store.positions || {};
+  store.salaries = store.salaries || {};
 
   const headRow = document.getElementById("head-row");
   headRow.innerHTML =
     '<th class="name-col">Mitarbeiter</th>' +
     '<th class="pos-col">Position</th>' +
-    AREAS.map(a => `<th>${a}</th>`).join("");
+    AREAS.map(a => `<th>${a}</th>`).join("") +
+    '<th class="salary-col">Gehalt</th>';
 
   const body = document.getElementById("body");
 
@@ -287,7 +302,10 @@
         return `<td><select class="qual v${val}" data-id="${id}" onchange="onQualChange(this)">${opts}</select></td>`;
       }).join("");
 
-      html += `<tr><td class="name-col"><span class="idx">${idx}</span>${name}</td>${posCell}${cells}</tr>`;
+      const sal = store.salaries[name] ?? "";
+      const salCell = `<td class="salary-col"><input type="text" inputmode="decimal" class="salary" value="${sal}" placeholder="–" data-person="${name}" oninput="onSalaryInput(this)" onblur="onSalaryBlur(this)"></td>`;
+
+      html += `<tr><td class="name-col"><span class="idx">${idx}</span>${name}</td>${posCell}${cells}${salCell}</tr>`;
     });
     body.innerHTML = html;
     recount();
@@ -297,7 +315,8 @@
   footRow.innerHTML =
     '<td class="name-col">Qualifiziert je Bereich</td>' +
     '<td class="pos-col"></td>' +
-    AREAS.map((_,i) => `<td data-col="${i}">0</td>`).join("");
+    AREAS.map((_,i) => `<td data-col="${i}">0</td>`).join("") +
+    '<td class="salary-col"></td>';
 
   function onQualChange(sel) {
     const val = sel.value;
@@ -305,6 +324,22 @@
     store.quals[sel.dataset.id] = Number(val);
     persist();
     recount();
+  }
+
+  function onSalaryInput(inp) {
+    store.salaries[inp.dataset.person] = inp.value;
+    persist();
+  }
+
+  function onSalaryBlur(inp) {
+    const raw = (inp.value || "").replace(/[^0-9.,]/g, "").replace(/\./g, "").replace(",", ".");
+    const num = parseFloat(raw);
+    if (!isNaN(num)) {
+      const formatted = num.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+      inp.value = formatted;
+      store.salaries[inp.dataset.person] = formatted;
+      persist();
+    }
   }
 
   function onPosChange(sel) {
