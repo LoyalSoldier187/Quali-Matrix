@@ -257,12 +257,83 @@
     "Huduq, Osumani","Franjo, Denis","Semm, Yvonne","Scholz-Zhang, Zhenfang"
   ];
 
-  const KEY = "qualimatrix-bischofsheim-v2";
-  const store = JSON.parse(localStorage.getItem(KEY) || "{}");
-  // store: { quals: {name||area: level}, positions: {name: positionName} }
-  store.quals = store.quals || {};
-  store.positions = store.positions || {};
-  store.salaries = store.salaries || {};
+  // Vorbelegte Positionen
+  const SEED_POSITIONS = {
+    "Bahn, Marc":"Lagerleiter",
+    "Zerrou, Ayoub":"Teamleiter Inhouse",
+    "Valter, Julia":"Teamleiter Wareneingang",
+    "Franjo, Denis":"Teamleiter Frachten",
+    "Kunicke, Asta":"Teamleiter Versand",
+    "Rout, Evgeniya":"Teamleiter Versand",
+    "Schuller, Milica":"Teamleiter GB-Druck",
+    "Barschtipan, Dustin":"Floor-Manager",
+    "Gacioppo, Fabio":"Floor-Manager",
+    "Da Silva Antonio, Jose":"Vollzeit",
+    "Degirmenci, Abdullah":"Vollzeit",
+    "Dortmann, Irina":"Vollzeit",
+    "Huduq, Osumani":"Vollzeit",
+    "Jung, Jaqueline":"Vollzeit",
+    "Khan, Emal":"Vollzeit",
+    "Kimmer, Timo":"Vollzeit",
+    "Malah, Khalid":"Vollzeit",
+    "Müller, Heike":"Vollzeit",
+    "Munteanu, Tatiana":"Vollzeit",
+    "Ngoc Thanh Tuyen, Pham":"Vollzeit",
+    "Philippi, Rene":"Vollzeit",
+    "Tewelde, Amanuel":"Vollzeit",
+    "Scholz-Zhang, Zhenfang":"Teilzeit",
+    "Semm, Yvonne":"Teilzeit"
+  };
+
+  // Vorbelegte Qualifikationen. Reihenfolge je Zeile:
+  // Picken, Packen, Retoure, Wareneingang, Frachten, Versand, GotBag-Druck, Stapler
+  // Werte: 0 nicht eingesetzt · 1 Einarbeitung · 2 Anleitung · 3 selbstständig · 4 anleiten
+  const SEED_ROWS = {
+    "Bahn, Marc":            [3,3,3,3,3,3,3,3],
+    "Zerrou, Ayoub":         [3,3,0,0,0,3,0,3],
+    "Valter, Julia":         [3,3,0,3,0,3,0,3],
+    "Franjo, Denis":         [3,3,0,3,3,3,0,3],
+    "Kunicke, Asta":         [3,3,0,0,0,3,3,1],
+    "Rout, Evgeniya":        [3,3,0,0,0,3,0,3],
+    "Schuller, Milica":      [3,3,3,3,0,0,3,3],
+    "Barschtipan, Dustin":   [3,0,0,3,0,0,0,1],
+    "Gacioppo, Fabio":       [3,3,0,3,0,0,0,0],
+    "Da Silva Antonio, Jose":[3,0,0,0,0,0,0,3],
+    "Degirmenci, Abdullah":  [3,0,0,0,0,0,0,3],
+    "Dortmann, Irina":       [3,3,3,0,0,0,0,0],
+    "Huduq, Osumani":        [3,0,0,0,0,0,0,0],
+    "Jung, Jaqueline":       [3,3,3,1,1,1,0,0],
+    "Khan, Emal":            [3,3,0,1,0,3,0,3],
+    "Kimmer, Timo":          [0,0,0,0,0,0,0,0],
+    "Malah, Khalid":         [3,0,0,0,0,0,0,3],
+    "Müller, Heike":         [3,3,3,0,0,0,0,0],
+    "Munteanu, Tatiana":     [3,3,3,0,0,0,0,0],
+    "Ngoc Thanh Tuyen, Pham":[3,3,0,0,0,0,0,0],
+    "Philippi, Rene":        [3,3,0,3,0,0,3,3],
+    "Tewelde, Amanuel":      [3,3,0,0,0,0,0,3],
+    "Scholz-Zhang, Zhenfang":[3,3,0,0,0,0,0,0],
+    "Semm, Yvonne":          [3,3,3,0,0,0,0,0]
+  };
+
+  const KEY = "qualimatrix-bischofsheim-v3";
+  const stored = localStorage.getItem(KEY);
+  let store;
+  if (stored) {
+    store = JSON.parse(stored);
+    store.quals = store.quals || {};
+    store.positions = store.positions || {};
+    store.salaries = store.salaries || {};
+  } else {
+    // Erststart: mit deinen ausgefüllten Daten vorbelegen
+    store = { quals:{}, positions:{}, salaries:{} };
+    Object.assign(store.positions, SEED_POSITIONS);
+    Object.keys(SEED_ROWS).forEach(name => {
+      SEED_ROWS[name].forEach((lvl, i) => {
+        store.quals[`${name}||${AREAS[i]}`] = lvl;
+      });
+    });
+    localStorage.setItem(KEY, JSON.stringify(store));
+  }
 
   const headRow = document.getElementById("head-row");
   headRow.innerHTML =
